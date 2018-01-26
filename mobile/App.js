@@ -5,7 +5,6 @@ import navigation, { StackNavigator } from 'react-navigation';
 
 import AgendaScreen from './screens/AgendaScreen';
 import DecideAction from './screens/DecideAction';
-import SpeakOutScreen from './screens/SpeakOutScreen';
 
 const RootNavigator = StackNavigator({
   DecideAction: {
@@ -17,7 +16,7 @@ const RootNavigator = StackNavigator({
       headerRight:  <View style={{flexDirection: 'row'}}>
                       <TouchableHighlight onPress={() => navigation.navigate('Agenda')}>
                         <Image
-                          source={require('./calendar.png')}
+                          source={require('./images/calendar.png')}
                           style={{width:40, height:40, marginRight:15, alignItems:'flex-start'}}
                         />
                       </TouchableHighlight>

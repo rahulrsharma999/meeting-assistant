@@ -8,9 +8,9 @@ import config from '../config';
 const window = Dimensions.get('window');
 const deviceWidth = Math.floor(window.width);
 const deviceHeight = Math.floor(window.height);
+const monthNames = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
 function getDateNumber(date){ //date is in format 'Dec 10, 2017'
-  let monthNames = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
   let mthName = date.split(' ')[0];
   let mth = 0;
   for(i=0;i<monthNames.length;i++){
@@ -28,7 +28,6 @@ function getDateNumber(date){ //date is in format 'Dec 10, 2017'
 }
 
 function getDateFromDateNumber(dateNumber){
-  let monthNames = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
   let x = dateNumber;
   let date = x%100;
   x = (x - x%100)/100;
@@ -181,18 +180,18 @@ export default class DecideAction extends React.Component {
   render() {
     this.userText = '';
     return (
-      <Image source={require('../bkg3.jpg')} style={styles.container}>
+      <Image source={require('../images/background.jpg')} style={styles.container}>
         <View style={styles.header}>
-          <Image source={require('../girl.png')} />
+          <Image source={require('../images/girl.png')} />
         </View>
 
         <View style={styles.leftMessage}>
-          <Image source={require('../user.png')} style={{width:30, height:30, marginBottom:5 }} />
+          <Image source={require('../images/user.png')} style={{width:30, height:30, marginBottom:5 }} />
           {this.userContent}
         </View>
 
         <View style={styles.rightMessage}>
-          <Image source={require('../girl-small.png')} style={{width:30, height:30, marginBottom:5 }} />
+          <Image source={require('../images/girl-small.png')} style={{width:30, height:30, marginBottom:5 }} />
           {this.content}
         </View>
 
@@ -334,7 +333,6 @@ export default class DecideAction extends React.Component {
     let year=0;
     let day=0;
     let month=0;
-    var monthNames = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
     if( (usrDateStrings == ('today')) || (usrDateStrings == ('Today')) || (usrDateStrings == ('TODAY')) ){
       let dt = new Date();

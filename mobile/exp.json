@@ -7,10 +7,10 @@
   "version": "1.0.0",
   "orientation": "portrait",
   "primaryColor": "#cccccc",
-  "icon": "./icon.png",
+  "icon": "./images/icon.png",
   "loading": {
-    "backgroundImage": "./loading.png",
-    "hideExponentText": false
+    "backgroundImage": "./images/loading.png",
+    "hideExponentText": true
   },
   "packagerOpts": {
     "assetExts": ["ttf", "mp4"]

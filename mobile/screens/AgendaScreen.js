@@ -23,11 +23,12 @@ function get24HourTime(time){ //time in format 10:15 PM
 export default class AgendaScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      items: {},
-      month: 10
-    };
   }
+
+  state = {
+    items: {},
+    month: 10
+  };
 
   render() {
     return (
