@@ -1,0 +1,24 @@
+{
+  "name": "Meeting Assistant",
+  "description": "Meeting Assistant",
+  "slug": "meetingAssistant",
+  "privacy": "public",
+  "sdkVersion": "22.0.0",
+  "version": "1.0.0",
+  "orientation": "portrait",
+  "primaryColor": "#cccccc",
+  "icon": "./icon.png",
+  "loading": {
+    "backgroundImage": "./loading.png",
+    "hideExponentText": false
+  },
+  "packagerOpts": {
+    "assetExts": ["ttf", "mp4"]
+  },
+  "ios": {
+    "supportsTablet": true
+  },
+  "android": {
+    "package": "com.rahul.meetingAssistant"
+  }
+}
