@@ -4,7 +4,7 @@
   "slug": "ma",
   "privacy": "public",
   "sdkVersion": "22.0.0",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "orientation": "portrait",
   "primaryColor": "#cccccc",
   "icon": "./icon.png",

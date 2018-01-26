@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const expressMongoDb = require('express-mongo-db');
 
-const auth = require('./auth');
 const dbApi = require('./routes/db-api');
 
 const app = express();
@@ -40,9 +39,9 @@ app.get('/hello-world', function(req, res, next) {
   res.json({'message': 'hello, world!'});
 });
 
-//app.use('/api/db', dbApi);
 // use //api/... for heroku
-app.use('//api/db', dbApi);
+app.use('/api/db', dbApi);
+//app.use('//api/db', dbApi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

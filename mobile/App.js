@@ -3,8 +3,6 @@ import React from 'react';
 import { Button, StyleSheet, Text, View, Image, TouchableHighlight } from 'react-native';
 import navigation, { StackNavigator } from 'react-navigation';
 
-import { withAuth } from './Auth';
-
 import AgendaScreen from './screens/AgendaScreen';
 import DecideAction from './screens/DecideAction';
 import SpeakOutScreen from './screens/SpeakOutScreen';
@@ -42,4 +40,4 @@ class App extends React.Component {
   }
 }
 
-Expo.registerRootComponent(withAuth(App));
+Expo.registerRootComponent(App);
