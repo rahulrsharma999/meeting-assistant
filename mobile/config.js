@@ -5,7 +5,7 @@ const config = {
 }
 
 const devModeOverrides = {
-  API_BASE: 'https://meeting-assistant-app.herokuapp.com/',
+  API_BASE: 'http://192.168.86.181:3000',
 }
 
 if (__DEV__) {
