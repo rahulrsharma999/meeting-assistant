@@ -35,5 +35,5 @@ npm-debug.log
 # mobile
 .expo
 
-# apk builds
-build
+# db
+db
