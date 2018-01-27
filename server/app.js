@@ -40,8 +40,8 @@ app.get('/hello-world', function(req, res, next) {
 });
 
 // use //api/... for heroku
-app.use('/api/db', dbApi);
-//app.use('//api/db', dbApi);
+//app.use('/api/db', dbApi);
+app.use('//api/db', dbApi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
