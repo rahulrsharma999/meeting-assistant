@@ -1,14 +1,16 @@
 import React from 'react';
-import { Text, TextInput, Button, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Dimensions } from 'react-native';
+import { Text, TextInput, Button, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import Speech from 'expo';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import SpeakOut from './SpeakOut';
 
 import config from '../config';
+
 const window = Dimensions.get('window');
 const deviceWidth = Math.floor(window.width);
 const deviceHeight = Math.floor(window.height);
 const monthNames = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+const timerTimeout = 60000;
 
 function getDateNumber(date){ //date is in format 'Dec 10, 2017'
   let mthName = date.split(' ')[0];
@@ -39,7 +41,7 @@ function getDateFromDateNumber(dateNumber){
   return dateStr;
 }
 
-function get24HourTime(time){ //time in format 10:15 PM
+function get24HourTime(time){ //time is in format 10:15 PM
   var hours = Number(time.match(/^(\d+)/)[1]);
   var minutes = Number(time.match(/:(\d+)/)[1]);
   var AMPM = time.match(/\s(.*)$/)[1];
@@ -59,8 +61,6 @@ function isEmpty(obj) {
     }
     return true;
 }
-
-const timerTimeout = 60000;
 
 export default class DecideAction extends React.Component {
   constructor(props){
@@ -120,7 +120,6 @@ export default class DecideAction extends React.Component {
         this.content = <SpeakOut text={resp} />
         this.setState({response: resp});
       }
-
     })
     .catch(error => {
       let resp = 'Oops! There was an error in connecting to the server. Please check your network connection and restart the app.';
@@ -170,7 +169,6 @@ export default class DecideAction extends React.Component {
 
       //console.log('Timer Mounted!')
       setTimeout(() => this.notifyMeeting(), timerTimeout);
-
     })
     .catch(error => {
       console.log('meetings error!' + error);
@@ -181,21 +179,21 @@ export default class DecideAction extends React.Component {
     this.userText = '';
     return (
       <Image source={require('../images/background.jpg')} style={styles.container}>
-        <View style={styles.header}>
-          <Image source={require('../images/girl.png')} />
+        <View style={styles.logoContainer}>
+          <Image source={require('../images/girl.png')} style={styles.logo} />
         </View>
 
         <View style={styles.leftMessage}>
-          <Image source={require('../images/user.png')} style={{width:30, height:30, marginBottom:5 }} />
+          <Image source={require('../images/user.png')} style={styles.avatar} />
           {this.userContent}
         </View>
 
         <View style={styles.rightMessage}>
-          <Image source={require('../images/girl-small.png')} style={{width:30, height:30, marginBottom:5 }} />
+          <Image source={require('../images/girl-small.png')} style={styles.avatar} />
           {this.content}
         </View>
 
-        <View style={styles.userInput}>
+        <View style={styles.userInputContainer}>
           <UserInput
             userText={this.userText}
             onUpdateUserText={this.updateUserText}
@@ -747,11 +745,11 @@ class UserMessage extends React.Component {
 
   render() {
     return (
-      <Button
-        color='gray'
-        title={this.props.text}
-        onPress={this.noAction}
-      />
+      <TouchableOpacity style={styles.buttonStyle} >
+        <Text style={styles.buttonTextStyle}>
+          {this.props.text.toUpperCase()}
+        </Text>
+      </TouchableOpacity>
     );
   }
 
@@ -774,9 +772,9 @@ class UserInput extends React.Component {
   render() {
     return (
       <View>
-        <KeyboardAvoidingView keyboardVerticalOffset={630} behavior={'padding'}>
+        <KeyboardAvoidingView keyboardVerticalOffset={0.93 * deviceHeight} behavior={'padding'} >
           <TextInput
-            style={{ width: (deviceWidth-40), height: 44, padding: 8 }}
+            style={styles.userInputText}
             placeholder="Type your message here!"
             value={this.state.content}
             onChangeText={(text) => {
@@ -801,65 +799,61 @@ class UserInput extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    resizeMode: 'cover', // or 'stretch'
-  },
   container: {
     flex: 1,
-    paddingTop: 0,
     resizeMode: 'cover', // or 'stretch'
     alignSelf: 'stretch',
     width: null,
   },
-  separator: {
-    height: 1,
-    backgroundColor: '#eee',
-    marginTop: 0,
-    marginBottom: 5,
+  logoContainer:{
+    marginTop: (deviceHeight/50),
+    marginLeft: (deviceWidth/15),
+    alignItems:'center',
+    justifyContent:'center'
   },
-  headerText: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 5,
-  },
-  headerContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    marginHorizontal: 20,
-    marginBottom: 0
+  logo:{
+    resizeMode: 'contain', // or 'stretch'
+    backgroundColor:'transparent',
+    height: (deviceHeight/3)
   },
   leftMessage:{
     flex: 1,
     alignItems: 'flex-start',
-    marginBottom:10,
-    marginLeft:30,
-    marginRight:100,
+    marginBottom:(deviceWidth/40),
+    marginLeft:(deviceWidth/15),
+    marginRight:(deviceWidth/5),
   },
   rightMessage:{
     flex: 1,
     alignItems: 'flex-end',
-    marginBottom:25,
-    marginLeft:100,
-    marginRight:30,
+    marginBottom:(deviceWidth/15),
+    marginLeft:(deviceWidth/5),
+    marginRight:(deviceWidth/15),
   },
-  header:{
-    marginTop:20,
-    marginBottom:0,
-    marginLeft:30,
-    marginRight:0,
-    backgroundColor:'transparent',
-    alignItems:'center',
-    justifyContent:'center',
+  avatar:{
+    width:(deviceWidth/15),
+    height:(deviceWidth/15),
+    marginBottom:(deviceHeight/120)
   },
-  userInput:{
+  userInputContainer:{
     flex: 1,
     flexDirection: 'row',
     alignItems:'flex-end',
-    margin: 20,
-    height:10
+    margin: (deviceWidth/20),
   },
-  spaced: {
-    marginTop: 20,
-  }
+  userInputText: {
+    width: (0.9 * deviceWidth),
+    padding: (deviceWidth/50),
+    height: (deviceWidth/10),
+  },
+  buttonStyle:{
+    padding:8,
+    backgroundColor: 'gray',
+    borderRadius:2,
+  },
+  buttonTextStyle:{
+    color: '#ffffff',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
 });
