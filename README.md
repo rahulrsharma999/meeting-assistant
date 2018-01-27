@@ -11,9 +11,9 @@
 
 ## Screenshots
 
-![Create Screen Start ](/public/screenshots/screenshot01.png)
-![Next meeting](/public/screenshots/screenshot04.png)
-![Delete Screen Start](/public/screenshots/screenshot05.png)
-![Meeting Reminder Screen](/public/screenshots/screenshot12.png)
-![Calendar Task View Screen](/public/screenshots/screenshot10.png)
-![Calendar Select Month Screen](/public/screenshots/screenshot11.png)
+![Create Screen Start ](/screenshots/create.png)
+![Next meeting](/screenshots/next.png)
+![Delete Screen Start](/screenshots/delete.png)
+![Meeting Reminder Screen](/screenshots/reminder.png)
+![Calendar Task View Screen](/screenshots/tasks.png)
+![Calendar Select Month Screen](/screenshots/calendar.png)
