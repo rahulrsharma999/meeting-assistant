@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TextInput, Button, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import Speech from 'expo';
+import { Speech, Permissions, Notifications } from 'expo';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
 import SpeakOut from './SpeakOut';
 
@@ -11,6 +11,86 @@ const deviceWidth = Math.floor(window.width);
 const deviceHeight = Math.floor(window.height);
 const monthNames = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 const timerTimeout = 60000;
+
+///////////////////////////////////////////////////////////////////////////////
+// PUSH NOTIFICATIONS
+///////////////////////////////////////////////////////////////////////////////
+async function registerForPushNotificationsAsync(notificationMessage) {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS
+  );
+  let finalStatus = existingStatus;
+
+  // only ask if permissions have not already been determined, because
+  // iOS won't necessarily prompt the user a second time.
+  if (existingStatus !== 'granted') {
+    // Android remote notification permissions are granted during the app
+    // install, so this will only ask on iOS
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+
+  // Stop here if the user did not grant permissions
+  if (finalStatus !== 'granted') {
+    return;
+  }
+
+  // Get the token that uniquely identifies this device
+  let token = await Notifications.getExpoPushTokenAsync();
+
+  // POST the token to your backend server from where you can retrieve it to send push notifications.
+  var data = {
+    'token': token,
+    'message': notificationMessage,
+  };
+  var myRequest = new Request(`${config.API_BASE}/api/db/pushNotification`, {
+    method: 'POST',
+    headers: Object.assign({'Accept': 'application/json','Content-Type': 'application/json'}),
+    body: JSON.stringify(data)
+  });
+
+  return fetch(myRequest)
+}
+
+async function addPushNotificationAsync(notificationMessage, dateNumber, timeNumber) {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS
+  );
+  let finalStatus = existingStatus;
+
+  // only ask if permissions have not already been determined, because
+  // iOS won't necessarily prompt the user a second time.
+  if (existingStatus !== 'granted') {
+    // Android remote notification permissions are granted during the app
+    // install, so this will only ask on iOS
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+
+  // Stop here if the user did not grant permissions
+  if (finalStatus !== 'granted') {
+    return;
+  }
+
+  // Get the token that uniquely identifies this device
+  let token = await Notifications.getExpoPushTokenAsync();
+
+  // POST the token to your backend server from where you can retrieve it to send push notifications.
+  var dateUTC = getUTCTimeFromDateNumberTimeNumber(dateNumber, timeNumber);
+  var data = {
+    'token': token,
+    'message': notificationMessage,
+    'notifyDateTime': dateUTC
+  };
+  var myRequest = new Request(`${config.API_BASE}/api/db/addNotification`, {
+    method: 'POST',
+    headers: Object.assign({'Accept': 'application/json','Content-Type': 'application/json'}),
+    body: JSON.stringify(data)
+  });
+
+  return fetch(myRequest)
+}
+///////////////////////////////////////////////////////////////////////////////
 
 function getDateNumber(date){ //date is in format 'Dec 10, 2017'
   let mthName = date.split(' ')[0];
@@ -39,6 +119,23 @@ function getDateFromDateNumber(dateNumber){
 
   let dateStr = monthNames[mth]+' '+date+', '+yr;
   return dateStr;
+}
+
+function getUTCTimeFromDateNumberTimeNumber(dateNumber,timeNumber){
+  let x = parseInt(dateNumber);
+  let date = x%100;
+  x = (x - x%100)/100;
+  let mth = (x%100) - 1;
+  x = (x - x%100)/100;
+  let yr = x;
+
+  let hh = parseInt(timeNumber.substring(0,2));
+  let mm = parseInt(timeNumber.substring(2,4));
+
+  let dt = new Date(yr, mth, date, hh, mm, 0, 0);
+  let utc = dt.getTime() + (dt.getTimezoneOffset() * 60000);
+
+  return utc;
 }
 
 function get24HourTime(time){ //time is in format 10:15 PM
@@ -127,6 +224,7 @@ export default class DecideAction extends React.Component {
       this.setState({response: resp});
     });
 
+    //registerForPushNotificationsAsync('Hi, Welcome to Meeting Assistant!');
   }
 
   getAllMeetingsData(){
@@ -560,6 +658,11 @@ export default class DecideAction extends React.Component {
 
         //success message
         var meetingMsg = 'Great! Your meeting for '+agenda+' on '+date+' at '+time+' has been scheduled...'
+
+        //add notification
+        let notificationMsg = 'Gentle Reminder! Your have a meeting today for '+agenda+' at '+time;
+        addPushNotificationAsync(notificationMsg,""+dateNumber,get24HourTime(time));
+
         this.content = <SpeakOut text={meetingMsg} />
         this.setState({currAction: '', agenda: '', date: '', response: meetingMsg, time: ''});
 
@@ -728,6 +831,7 @@ export default class DecideAction extends React.Component {
 
     if(meeting != undefined && meeting.date != undefined){
       todaymeetingsMsg = 'Gentle Reminder! Your have a meeting today for '+meeting.agenda+' at '+meeting.time;
+      registerForPushNotificationsAsync(todaymeetingsMsg);
       this.content = <SpeakOut text={todaymeetingsMsg} />
       this.setState({response: {todaymeetingsMsg} });
     }

@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node ./server/bin/www",
     "dev": "heroku local server --procfile Procfile.dev",
-    "dev-express": "nodemon ./server/bin/www",
+    "dev-express": "node ./server/bin/www",
     "postinstall": "cd mobile ; npm install"
   },
   "engines": {
@@ -16,6 +16,7 @@
     "co": "^4.6.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
+    "expo-server-sdk": "^2.3.3",
     "express": "~4.15.2",
     "express-jwt": "^5.3.0",
     "express-jwt-authz": "^1.0.0",

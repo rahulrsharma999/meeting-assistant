@@ -1,5 +1,154 @@
 var express = require('express');
 var router = express.Router();
+var Expo = require('expo-server-sdk');
+var fs = require('fs');
+
+var notifications = {};
+loadNotificationsFromFile();
+
+////////////////////////////////////////////////////////////////////////////////////
+//PUSH Notifications
+////////////////////////////////////////////////////////////////////////////////////
+
+//loop forever sleeping for 10 minutes and checking for next notifications to send
+setInterval(checkNotifications, 600000);
+
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+function writeNotificationsToFile(){
+  let notificationsdata = JSON.stringify(notifications);
+  fs.writeFile("notifications.json", notificationsdata, function(err) {
+    if(err) {
+        return console.log(err);
+    }
+    console.log("Notifications backed up to file notifications.json");
+  });
+}
+
+function loadNotificationsFromFile(){
+  fs.readFile("notifications.json", 'utf8', function (err, data) {
+    if (err) throw err;
+    notifications = JSON.parse(data);
+    console.log("Notifications loaded from file notifications.json");
+  });
+}
+
+function checkNotifications(){
+  let dt = new Date();
+  let messages = [];
+
+  console.log('Checking for notifications at : '+dt.toString());
+
+  for(i=0;i<10;i++){  //check for next 10 minutes notifications
+    let currDate = new Date(dt.getTime() + i * 60000)
+    let currDateNumber = parseInt(currDate.getFullYear()
+                        +( '0' + (currDate.getMonth()+1) ).substr(-2)
+                        +( '0' + (currDate.getDate()) ).substr(-2) );
+    let currTimeNumber = parseInt( ( '0' + (currDate.getHours()) ).substr(-2)
+                        +( '0' + (currDate.getMinutes()) ).substr(-2) );
+
+    if( (notifications[currDateNumber] != undefined) && (notifications[currDateNumber][currTimeNumber] != undefined) ){
+      Array.prototype.push.apply(messages,notifications[currDateNumber][currTimeNumber]);
+      delete notifications[currDateNumber][currTimeNumber];
+    }
+
+    if( isEmpty(notifications[currDateNumber]) ){
+      delete notifications[currDateNumber];
+    }
+  }
+
+  expoNotify(messages);
+  writeNotificationsToFile();
+}
+
+function expoNotify(messages){
+  // The Expo push notification service accepts batches of notifications so
+  // that you don't need to send 1000 requests to send 1000 notifications. We
+  // recommend you batch your notifications to reduce the number of requests
+  // and to compress them (notifications with similar content will get
+  // compressed).
+  let expo = new Expo();
+  let chunks = expo.chunkPushNotifications(messages);
+
+  (async () => {
+    // Send the chunks to the Expo push notification service. There are
+    // different strategies you could use. A simple one is to send one chunk at a
+    // time, which nicely spreads the load out over time:
+    for (let chunk of chunks) {
+      try {
+        let receipts = await expo.sendPushNotificationsAsync(chunk);
+        //console.log(receipts);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  })();
+}
+
+router.post('/pushNotification', function(req, res, next) {
+  let messages = [];
+  let pushToken = req.body.token;
+
+  // Check that all your push tokens appear to be valid Expo push tokens
+  if (!Expo.isExpoPushToken(pushToken)) {
+    console.error(`Push token ${pushToken} is not a valid Expo push token`);
+  }
+  else{
+    messages.push({
+      to: pushToken,
+      sound: 'default',
+      body: req.body.message
+    })
+  }
+
+  expoNotify(messages);
+});
+
+router.post('/addNotification', function(req, res, next) {
+  // Create a new Expo SDK client
+  let pushToken = req.body.token;
+
+  // Check that all your push tokens appear to be valid Expo push tokens
+  if (!Expo.isExpoPushToken(pushToken)) {
+    console.error(`Push token ${pushToken} is not a valid Expo push token`);
+  }
+  else{
+    let notifyDateUTC = req.body.notifyDateTime;
+    let dt = new Date();
+    let localDateUTC = notifyDateUTC - (dt.getTimezoneOffset() * 60000);
+    //to notify 10 minutes in advance
+    let localNotifyDateUTC = localDateUTC - 600000;
+    let localNotifyDate = new Date(localNotifyDateUTC);
+
+    let notifyDateNumber = parseInt(localNotifyDate.getFullYear()
+                        +( '0' + (localNotifyDate.getMonth()+1) ).substr(-2)
+                        +( '0' + (localNotifyDate.getDate()) ).substr(-2) );
+    let notifyTimeNumber = parseInt( ( '0' + (localNotifyDate.getHours()) ).substr(-2)
+                        +( '0' + (localNotifyDate.getMinutes()) ).substr(-2) );
+
+    if(notifications[notifyDateNumber] == undefined){
+      notifications[notifyDateNumber] = {};
+    }
+    if(notifications[notifyDateNumber][notifyTimeNumber] == undefined){
+      notifications[notifyDateNumber][notifyTimeNumber] = [];
+    }
+
+    notifications[notifyDateNumber][notifyTimeNumber].push({
+      to: pushToken,
+      sound: 'default',
+      body: req.body.message
+    })
+  }
+});
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 //Test if connected to server
